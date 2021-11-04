@@ -1,0 +1,97 @@
+function generateDeck() {
+  const newDeck = []; 
+
+  for (let i = 1; i <= 13; i++) {
+    const heart = i + 'H';
+    const diamond = i + 'D';
+    const clover = i + 'C';
+    const spade = i + 'S';
+
+    newDeck.push(heart, diamond, clover, spade);
+  }
+
+  return newDeck;
+}
+
+function shuffleDeck(deck) {
+  const newDeck = [...deck];
+  let currentIndex = newDeck.length, randomIndex;
+
+  while (currentIndex != 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [newDeck[currentIndex], newDeck[randomIndex]] = [newDeck[randomIndex], newDeck[currentIndex]];
+  }
+
+  return newDeck;
+}
+
+function getHand(deck) {
+  const hand =  deck.slice(0, 5);
+  console.log('Your hand is ' + hand.join(', '));
+  return hand;
+}
+
+function calculateHandPoints(hand) {
+  const countHand = new Array(13).fill(0);
+  hand.forEach(card => countHand[+card.slice(0, card.length - 1) - 1]++); // Count the amount of each number on hand
+  
+  const isStraight = countHand.reduce((acc, cur) => {
+    if (acc !== 5) {
+      if (cur === 1) {
+        return acc++;
+      }
+      return 0;
+    }
+    return acc;
+  }, 0);
+  const isFlush = hand.reduce((acc, cur) => acc && (cur[1] === hand[0][1]), true);
+
+  const point =
+    countHand.reduce((acc, cur) => acc += cur * (cur - 1), 0)
+    + (isFlush ? 7.5 : 0)
+    + (isStraight === 5 ? 7 : 0);
+  
+  return point;
+}
+
+function decideHands(hand) {
+  const point = calculateHandPoints(hand);
+  switch (point) {
+    case 0:
+      console.log('Your hand has High Card.');
+      break;
+    case 2:
+      console.log('Your hand has One Pair.');
+      break;
+    case 4:
+      console.log('Your hand has Two Pair.');
+      break;
+    case 6:
+      console.log('Your hand has Three of a Kind.');
+      break;
+    case 7:
+      console.log('Your hand has Straight.');
+      break;
+    case 7.5:
+      console.log('Your hand has Flush.');
+      break;
+    case 8:
+      console.log('Your hand has Full House.');
+      break;
+    case 14.5:
+      console.log('Your hand has Royal Flush!');
+      break;
+    default:
+      console.log("Can't calculate your hand.")
+      break;
+  }
+}
+
+(function main() {
+  const deck = generateDeck();
+  const shuffledDeck = shuffleDeck(deck);
+  const hand = getHand(shuffledDeck);
+  decideHands(hand);
+})();
